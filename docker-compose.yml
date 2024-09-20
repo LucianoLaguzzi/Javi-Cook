@@ -32,9 +32,9 @@ services:
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
+      interval: 15s
+      retries: 10
+      start_period: 60s
       timeout: 10s
 
 volumes:

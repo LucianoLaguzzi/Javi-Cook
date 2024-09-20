@@ -11,6 +11,11 @@ RUN mkdir -p $MODULES_DIR /opt/jboss/wildfly/uploads
 # Cambiar permisos del directorio uploads
 RUN chown -R jboss:jboss /opt/jboss/wildfly/uploads
 
+#Cambios agregados para crear el directorio si no existe
+RUN mkdir -p /opt/jboss/wildfly/img
+RUN chown -R jboss:jboss /opt/jboss/wildfly/img
+
+
 # Copiar el archivo WAR al directorio de despliegue de WildFly
 COPY target/JaviCook.war $DEPLOYMENT_DIR
 
