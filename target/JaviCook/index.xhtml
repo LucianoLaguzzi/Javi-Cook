@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <f:metadata>
+        <f:event listener="#{recetaBacking.init()}" type="preRenderView" />
+    </f:metadata>
+
+    <link rel="icon"  type="image/png" href="/JaviCook/img/favicon.png" />
+    <!-- Si tienes un icono en formato ICO, puedes incluirlo también -->
+    <link rel="icon" type="image/x-icon" href="/JaviCook/img/favicon.ico" />
+
+    <title>Javicook - Recetas</title>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <!--    CDN para que funcionen los iconos de fontawesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;family=Montserrat:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+
+
+
+</h:head>
+
+
+<body class="body-main">
+
+
+<div class="preloader">
+    <img src="img/JaviCook_logo.png" alt="Cargando..." class="img-skeleton"/>
+    <p class="p-skeleton">Cargando...</p>
+</div>
+<div class="main-content" style="display:none;">
+
+
+<h:form enctype="multipart/form-data">
+    <div class="encabezado">
+        <!-- Menú de opciones -->
+        <h:panelGroup styleClass="barra-navegacion">
+            <img src="img/JaviCook_logo.png" alt="Logotipo" class="logo-principal"/>
+            <c:if test="#{not empty usuarioBacking.usuario}">
+                <h:outputText value="Bienvenido, " styleClass="bienvenido-text" />
+                <h:commandLink action="#{usuarioBacking.irAPerfil}" value="#{usuarioBacking.usuario.nombre}" styleClass="link-al-perfil" title="Ir al perfil" />
+                <h:outputText value=" !" styleClass="simbolo-bienvenido" />
+            </c:if>
+            <span class="subtitulo"> Inspírate con recetas exclusivas </span>
+            <!-- Imagen para cerrar sesion -->
+            <h:graphicImage value="img/cubiertos-cruzados.png" styleClass="img-cerrar-sesion" title="Cerrar Sesión" onclick="cerrarSesion();"/>
+            <h:commandButton id="btnCerrarSesion" styleClass="boton-cerrar-sesion" style="display:none;" action="#{usuarioBacking.cerrarSesion}" />
+        </h:panelGroup>
+    </div>
+
+
+    <!-- Sección principal -->
+    <main class="principal">
+
+        <section class="filtro">
+            <h2>Buscá tus recetas por ingredientes</h2>
+            <div class="filtro-ing">
+                <h:commandButton styleClass="boton-filtro" value="Buscar" action="#{recetaBacking.buscarPorIngredientes}" />
+                <h:inputText styleClass="text-filtro" value="#{recetaBacking.filtroIngredientes}" pt:placeholder="Buscar por ingredientes..." />
+            </div>
+        </section>
+
+        <section class="recetas">
+            <div class="titulo-section-recetas">
+                <h2>Recetas disponibles</h2>
+            </div>
+
+
+
+            <!-- Si no hay recetas en la tabla -->
+            <h:panelGroup id="mensajeNoRecetas" rendered="#{not recetaBacking.hayRecetas}" prependId="false">
+                <span class="mensaje-no-recetas">Aún no hay recetas disponibles. ¡Sé el primero en compartir la tuya!</span>
+            </h:panelGroup>
+
+
+            <!-- Si hay recetas en la tabla -->
+            <h:panelGroup id="tarjetasRecetas" styleClass="panel-recetas" rendered="#{recetaBacking.hayRecetas}" prependId="false">
+                <c:forEach items="#{recetaBacking.listaRecetas}" var="receta">
+                    <div class="tarjeta-receta">
+                        <div class="imagen-contenedor">
+                            <img src="#{receta.imagen}" alt="#{receta.titulo}" />
+                            <div class="info-imagen">
+                                <span class="nombre-usuario">#{receta.usuario.nombre}</span>
+                                <span class="fecha-subida">#{receta.fecha}</span>
+                            </div>
+
+                            <!-- Ícono de favoritos -->
+                            <i class="fas fa-heart icono-favorito"
+                               title="#{usuarioBacking.esRecetaFavorita(receta) ? 'Quitar de favoritos' : 'Guardar como favorito'}"
+                               data-receta-id="#{receta.id}"
+                               onclick="guardarComoFavorito(this)"
+                               style="#{usuarioBacking.esRecetaFavorita(receta) ? 'color: red;' : ''}">
+                            </i>
+                            <!-- Botón oculto para agregar a favoritos -->
+                            <h:commandButton action="#{usuarioBacking.toggleRecetaFavorita(receta)}" style="display:none;" class="boton-add-fav" data-receta-id="#{receta.id}">
+                                <f:param name="recetaId" value="#{receta.id}" />
+                            </h:commandButton>
+
+                        </div>
+
+                        <h2>#{detalleRecetaBacking.tituloAMayuscula(receta.titulo)}</h2>
+                        <p>Categoría: #{receta.categoria}</p>
+                        <p><span class="tiempo">Tiempo de preparación: #{receta.tiempo_preparacion}'</span><i class="far fa-clock"></i> <span class="dificultad-#{receta.dificultad.toLowerCase()}">#{receta.dificultad}</span></p>
+
+
+                        <div class="valoracion">
+                            <p> Valoracion Promedio </p>
+                            <div class="estrellas">
+                                <i class="fa#{receta.valoracion >= 1 ? 's' : 'r'} fa-star"></i>
+                                <i class="fa#{receta.valoracion >= 2 ? 's' : 'r'} fa-star"></i>
+                                <i class="fa#{receta.valoracion >= 3 ? 's' : 'r'} fa-star"></i>
+                                <i class="fa#{receta.valoracion >= 4 ? 's' : 'r'} fa-star"></i>
+                                <i class="fa#{receta.valoracion >= 5 ? 's' : 'r'} fa-star"></i>
+                            </div>
+                        </div>
+
+                        <!-- Lleva a la pagina de la receta seleccionada -->
+                        <h:link value="Ver más" outcome="detalle_receta">
+                            <f:param name="idReceta" value="#{receta.id}" />
+                        </h:link>
+                    </div>
+                </c:forEach>
+
+                <div id="verMasRecetas">
+                    <h:commandButton class="ver-mas-recetas" value="Ver más recetas..." rendered="#{recetaBacking.hayRecetas}" action="#{recetaBacking.cargarMasRecetas}"  />
+                </div>
+            </h:panelGroup>
+
+
+            <div class="div-agregar-receta">
+                <a id="btnAbrirModalAgregarReceta" class="add-recipe-btn" onclick="abrirModal()">
+                    <i class="fas fa-plus"></i> Agregar receta
+                </a>
+            </div>
+
+            <!-- Modal para agregar recetas -->
+            <div id="modalAgregarReceta" class="modal">
+                <div class="modal-content">
+                    <span class="close" title="Cerrar"><i class="fa-solid fa-xmark" onclick="cerrarModal()"></i></span>
+
+                    <h2 id="titulo-modal">Agregar nueva receta</h2>
+
+
+                    <!-- Formulario para agregar receta -->
+                    <h:form class="form-receta" id="form-receta" enctype="multipart/form-data" prependId="false">
+                        <div class="contenedor-receta">
+
+                            <!-- Campos de titulo -->
+                            <div class="div-titulo-receta">
+                                <h:outputLabel for="titulo-r" styleClass="label-titulo-receta" value="Nombre de la receta: "></h:outputLabel>
+                                <h:inputText id="titulo-r" value="#{recetaBacking.receta.titulo}" pt:placeholder="Inserte nombre de la receta"  styleClass="receta-titulo" />
+                            </div>
+                            <div id="modalErrorTitulo" class="modal-error-titulo"></div>
+
+
+                            <!-- Campos de los ingredientes y sus cantidades -->
+                            <div class="div-cantidad-ingredientes-receta">
+                                <label for="cantidadIngrediente" class="label-cantidad-ingrediente">Ingredientes y cantidades:</label>
+                                <h:inputTextarea id="cantidadIngrediente" styleClass="text-area-cantidad-ingrediente" pt:placeholder="Ejemplo:&#10;Sal: 20gr &#10;Agua: 300cc" onchange="actualizarIngredientesCantidades()"></h:inputTextarea>
+                                <input type="hidden" class="inputOcultoIngredientesCantidades" name="cantidadIngrediente"/>
+
+
+                                <div class="p-aclaracion-cantidad-ingrediente">
+                                    <p class="instruccion-ingrediente-cantidad">Separe el ingrediente de la cantidad con 2 puntos (:)</p>
+                                </div>
+                            </div>
+
+                            <!-- Campos de los pasos -->
+                            <div class="div-pasos-receta">
+                                <div id="pasosPanel" class="pasos-panel">
+                                    <div class="paso">
+                                        <label for="paso1" class="label-pasos">Paso 1:</label>
+                                        <h:inputTextarea id="paso1" styleClass="text-area-pasos" pt:placeholder="Agregar paso..."  onchange="actualizarPasos()"></h:inputTextarea>
+                                    </div>
+                                </div>
+                                <div id="modalErrorPasos" class="modal-error-paso"></div>
+
+                                <!--                                    Aca agrego todos los pasos, en un input oculto-->
+                                <input type="hidden" id="inputOculto" name="pasos"/>
+
+
+                                <div class="div-agregar-quitar-pasos">
+                                    <!-- Botón para agregar un nuevo paso -->
+                                    <a id="btnAgregarPaso" class="btn-agregar-paso" title="Agregar paso">
+                                        <i class="fas fa-plus"></i>  Paso
+                                    </a>
+
+                                    <a id="btnQuitarPaso" class="btn-quitar-paso" title="Quitar paso" style="display: none;">
+                                        <i class="fas fa-minus"></i> Paso
+                                    </a>
+                                </div>
+
+                            </div>
+
+                            <div class="div-imagen">
+                                <h:outputLabel for="imagen" styleClass="label-imagen-receta" value="Imagen de la receta:"></h:outputLabel>
+                                <input type="file" id="imagen" name="file" accept="image/*" onchange="previewImage(event)" class="input-imagen"/>
+                                    <div id="modalErrorImagen"  class="modal-error-imagen"></div>
+                                <div class="imagen-preview">
+                                    <img id="previewImagen" class="preview-imagen" src="#" alt="Previesualización de la imagen"/>
+                                </div>
+                            </div>
+
+
+                            <div class="div-dificultad">
+                                <h:outputLabel for="dificultad" styleClass="label-dificultad" value="Seleccione la dificultad de la receta: "></h:outputLabel>
+                                <h:selectOneMenu id="dificultad" value="#{recetaBacking.receta.dificultad}" styleClass="menu-dificultad">
+                                    <f:selectItem itemLabel="Seleccione..." itemValue="#{null}"/>
+                                    <f:selectItem itemValue="Fácil" itemLabel="Fácil"/>
+                                    <f:selectItem itemValue="Intermedio" itemLabel="Intermedio"/>
+                                    <f:selectItem itemValue="Difícil" itemLabel="Difícil"/>
+                                </h:selectOneMenu>
+                            </div>
+                            <div id="modalErrorDificultad" class="modal-error-dificultad"></div>
+
+                            <div class="div-categoria">
+                                <h:outputLabel for="categoria" styleClass="label-categoria" value="Seleccione la categoría de la receta: "></h:outputLabel>
+                                <h:selectOneMenu id="categoria" value="#{recetaBacking.receta.categoria}" styleClass="menu-categoria">
+                                    <f:selectItem itemLabel="Seleccione..." itemValue="#{null}"/>
+                                    <f:selectItem itemValue="Desayuno/Merienda" itemLabel="Desayuno/Merienda"/>
+                                    <f:selectItem itemValue="Almuerzo/Cena" itemLabel="Almuerzo/Cena"/>
+                                    <f:selectItem itemValue="Brunch" itemLabel="Brunch"/>
+                                    <f:selectItem itemValue="Bebida/trago" itemLabel="Bebida/Trago"/>
+                                    <f:selectItem itemValue="Veggie" itemLabel="Veggie"/>
+                                    <f:selectItem itemValue="Guarnición" itemLabel="Guarnición"/>
+                                    <f:selectItem itemValue="Postre" itemLabel="Postre"/>
+                                </h:selectOneMenu>
+                            </div>
+                            <div id="modalErrorCategoria" class="modal-error-categoria"></div>
+
+                            <div class="div-tiempo-preparacion">
+                                <h:outputLabel for="tiempoPreparacion" styleClass="label-tiempo-preparacion" value="Tiempo de preparación (minutos): "></h:outputLabel>
+                                <a id="btnQuitarTiempo" class="btn-quitar-tiempo" title="Quitar 1 minuto">
+                                    <i class="fas fa-minus"></i>
+                                </a>
+                                <h:inputText id="tiempoPreparacion" styleClass="input-tiempo-preparacion" value="#{recetaBacking.receta.tiempo_preparacion}" />
+                                <a id="btnAgregarTiempo" class="btn-agregar-tiempo" title="Agregar 1 minuto">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </div>
+                            <div id="modalErrorTiempoPreparacion" class="modal-error-tiempo-preparacion"></div>
+
+                            <div class="div-ingredientes">
+                                <h:outputLabel styleClass="label-ingredientes" value="Ingredientes caracteristicos de la receta:"></h:outputLabel>
+                                <input type="text" id="ingredientesInput" class="input-ingredientes" placeholder="Ingrese ingredientes esenciales de la receta..." name="ingredientes"/>
+                            </div>
+                            <div class="p-aclaracion-ingrediente">
+                                <p class="instruccion-ingrediente">Separe cada ingrediente por una coma ( , )</p>
+                            </div>
+                            <div id="modalErrorIngredientes" class="modal-error-ingredientes"></div>
+
+                            <h:commandButton id="boton-enviar" styleClass="btn-guardar-receta" value="Guardar receta" action="#{recetaBacking.registrarReceta}" />
+                        </div>
+                    </h:form>
+                    <!-- Fin modal -->
+                </div>
+            </div>
+            <!--Fin seccion recetas-->
+        </section>
+
+        <h:panelGroup rendered="#{not empty recetaBacking.top3Recetas}">
+            <section class="top3">
+                <p class="top-recetas-titulo">Top 3 Recetas</p>
+                <h:panelGroup styleClass="panel-recetas">
+                    <ui:repeat value="#{recetaBacking.top3Recetas}" var="receta">
+                        <div class="tarjeta-receta">
+                            <ui:fragment rendered="#{not empty receta}">
+                                <!-- Tarjeta de receta real -->
+                                <div class="imagen-contenedor">
+                                    <img src="#{receta.imagen}" alt="#{receta.titulo}" />
+                                    <div class="info-imagen">
+                                        <span class="nombre-usuario">#{receta.usuario.nombre}</span>
+                                        <span class="fecha-subida">#{receta.fecha}</span>
+                                    </div>
+                                </div>
+                                <h2>#{detalleRecetaBacking.tituloAMayuscula(receta.titulo)}</h2>
+                                <p>Categoría: #{receta.categoria}</p>
+                                <p><span class="tiempo">Tiempo de preparación: #{receta.tiempo_preparacion}'</span><i class="far fa-clock"></i> <span class="dificultad-#{receta.dificultad.toLowerCase()}">#{receta.dificultad}</span></p>
+                                <div class="valoracion">
+                                    <p>Valoracion Promedio</p>
+                                    <div class="estrellas">
+                                        <i class="fa#{receta.valoracion >= 1 ? 's' : 'r'} fa-star"></i>
+                                        <i class="fa#{receta.valoracion >= 2 ? 's' : 'r'} fa-star"></i>
+                                        <i class="fa#{receta.valoracion >= 3 ? 's' : 'r'} fa-star"></i>
+                                        <i class="fa#{receta.valoracion >= 4 ? 's' : 'r'} fa-star"></i>
+                                        <i class="fa#{receta.valoracion >= 5 ? 's' : 'r'} fa-star"></i>
+                                    </div>
+                                </div>
+                                <h:link value="Ver más" outcome="detalle_receta">
+                                    <f:param name="idReceta" value="#{receta.id}" />
+                                </h:link>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{empty receta}">
+                                <!-- Tarjeta de receta vacía -->
+                                <div class="imagen-contenedor">
+                                    <img src="img/default-image.jpg" alt="Receta no valorada" />
+                                </div>
+                                <h2>Sin título</h2>
+                                <p class="default-text">No hay suficientes recetas valoradas para formar un Top 3 en este momento. Tu opinión ayuda a otros usuarios a encontrar recetas de calidad, aprovecha y valora las recetas que hayas probado para ser parte de nuestra comunidad y mejorar la experiencia de todos! </p>
+                            </ui:fragment>
+                        </div>
+                    </ui:repeat>
+                </h:panelGroup>
+            </section>
+        </h:panelGroup>
+
+
+
+
+
+            <section class="favoritos">
+                <p class="favoritos-titulo">Mis Recetas Favoritas</p>
+
+                <!-- Si NO hay recetas en favoritos del usuario -->
+                <h:panelGroup id="mensajeNoRecetasFavoritas" rendered="#{empty usuarioBacking.usuario.recetasFavoritas}" prependId="false">
+                    <span class="mensaje-no-recetas-favoritas">Aún no haz agregado recetas a tus sección de favoritas. ¡Agrega las recetas que mas te hayan gustado para encontrarlas mas fácilmente!</span>
+                </h:panelGroup>
+
+                <!-- Si hay recetas en favoritos del usuario -->
+                <h:panelGroup rendered="#{not empty usuarioBacking.usuario.recetasFavoritas}">
+                    <h:panelGroup styleClass="panel-recetas">
+                        <ui:repeat value="#{usuarioBacking.usuario.recetasFavoritas}" var="receta">
+                            <div class="tarjeta-receta">
+                                <ui:fragment rendered="#{not empty receta}">
+                                    <!-- Tarjeta de receta real -->
+                                    <div class="imagen-contenedor">
+                                        <img src="#{receta.imagen}" alt="#{receta.titulo}" />
+                                        <div class="info-imagen">
+                                            <span class="nombre-usuario">#{receta.usuario.nombre}</span>
+                                            <span class="fecha-subida">#{receta.fecha}</span>
+                                        </div>
+                                    </div>
+                                    <h2>#{detalleRecetaBacking.tituloAMayuscula(receta.titulo)}</h2>
+                                    <p>Categoría: #{receta.categoria}</p>
+                                    <p><span class="tiempo">Tiempo de preparación: #{receta.tiempo_preparacion}'</span><i class="far fa-clock"></i> <span class="dificultad-#{receta.dificultad.toLowerCase()}">#{receta.dificultad}</span></p>
+                                    <div class="valoracion">
+                                        <p>Valoracion Promedio</p>
+                                        <div class="estrellas">
+                                            <i class="fa#{receta.valoracion >= 1 ? 's' : 'r'} fa-star"></i>
+                                            <i class="fa#{receta.valoracion >= 2 ? 's' : 'r'} fa-star"></i>
+                                            <i class="fa#{receta.valoracion >= 3 ? 's' : 'r'} fa-star"></i>
+                                            <i class="fa#{receta.valoracion >= 4 ? 's' : 'r'} fa-star"></i>
+                                            <i class="fa#{receta.valoracion >= 5 ? 's' : 'r'} fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <h:link value="Ver más" outcome="detalle_receta">
+                                        <f:param name="idReceta" value="#{receta.id}" />
+                                    </h:link>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{empty receta}">
+                                    <!-- Tarjeta de receta vacía -->
+                                    <div class="imagen-contenedor">
+                                        <img src="img/default-image.jpg" alt="Receta no valorada" />
+                                    </div>
+                                    <h2>Sin título</h2>
+                                    <p class="default-text">Aún no tienes recetas favoritas. ¡Explora las recetas disponibles y guarda tus favoritas aquí!</p>
+                                </ui:fragment>
+                            </div>
+                        </ui:repeat>
+                    </h:panelGroup>
+                </h:panelGroup>
+            </section>
+
+
+
+    </main>
+
+</h:form>
+
+
+<footer class="footer">
+    © Sitio desarrollado por Javito | Todos los derechos reservados
+</footer>
+
+
+</div>
+
+<script type="text/javascript" src="#{request.contextPath}/js/index.js"></script>
+</body>
+</html>

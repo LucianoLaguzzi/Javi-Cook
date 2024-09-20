@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Nuevo Usuario</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;display=swap" rel="stylesheet"/>
+
+    <script type="text/javascript" src="#{request.contextPath}/js/login.js"></script>
+
+</h:head>
+
+
+<body class="body-new-user">
+
+<!-- Div mensaje de error -->
+<c:if test="#{not empty flash.erroresRegistro}">
+    <div id="error-container">
+        <i class="fa fa-exclamation-circle"></i>
+        <ui:repeat value="#{flash.erroresRegistro}" var="message">
+            <p>#{message}</p>
+        </ui:repeat>
+    </div>
+    <ui:remove>
+        #{flash.erroresRegistro.clear()}
+    </ui:remove>
+    <!--    Oculta mensajes de error    -->
+    <script>
+        ocultarMensajeDeError();
+    </script>
+</c:if>
+
+
+
+<!-- Div mensaje de exitor -->
+<c:if test="#{not empty flash.exitoRegistro}">
+    <div id="exito-container">
+        <i class="fa fa-check-circle"></i>
+        <ui:repeat value="#{flash.exitoRegistro}" var="message2">
+            <p>#{message2}</p>
+        </ui:repeat>
+    </div>
+    <ui:remove>
+        #{flash.exitoRegistro.clear()}
+    </ui:remove>
+
+</c:if>
+
+
+
+
+
+
+
+
+<ui:repeat value="#{flash.successRegistro}" var="message2">
+    <p>#{message2}</p>
+</ui:repeat>
+
+
+
+    <header class="titulo-registrar">
+        <h1> Registrar nuevo usuario</h1>
+    </header>
+
+    <section class="new-user-section">
+        <h:form styleClass="new-user-form" prependId="false">
+
+            <h2 class="new-user-title"> Registre sus datos </h2>
+
+
+            <div class="entrada">
+            <h:inputText id="newUser" value="#{usuarioBacking.usuario.nombre}"  styleClass="inp-nuevo-usuario" pt:placeholder="Usuario"/>
+                <i class="fas fa-user"></i>
+            </div>
+
+            <div class="entrada">
+                <h:inputSecret id="newPass" value="#{usuarioBacking.usuario.contrasenia}" styleClass="inp-nueva-pass" pt:placeholder="Contraseña"/>
+                <i class="fas fa-lock"></i>
+            </div>
+
+            <div class="entrada">
+            <h:inputText id="newEmail" value="#{usuarioBacking.usuario.email}" styleClass="inp-nuevo-email" pt:placeholder="Email"/>
+                <i class="fas fa-envelope"></i>
+            </div>
+
+            <h:commandButton value="Registrarse" action="#{usuarioBacking.registrarUsuario}" styleClass="boton-registrar-usuario">
+                <f:ajax execute="@form" render="@form" />
+            </h:commandButton>
+
+            <div class="panel-links">
+                <span class="mensaje-ir-login"> ¿Ya tenés usuario? <h:commandLink value="Iniciar sesion" action="#{usuarioBacking.redireccionarALogin}" styleClass="link" immediate="true" /></span>
+            </div>
+
+        </h:form>
+    </section>
+</body>
+
+
+</html>

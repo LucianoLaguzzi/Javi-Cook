@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Recuperar Contraseña</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+</h:head>
+
+<body class="recuperar-contrasenia">
+
+<header class="titulo-registrar">
+    <h1> Recuperación de contraseña</h1>
+</header>
+
+<section class="recuperar-section">
+    <h:form styleClass="recuperar-form" prependId="false">
+
+
+        <h2 class="titulo-recuperar-pass"> Recuperar Contraseña </h2>
+        <p class="p-recuperar-pass">Si olvidaste tu contraseña, puedes recuperarla ingresando aquí tu nombre de usuario
+            y te enviaremos un email con un link para que puedas lograr un cambio de contraseña.</p>
+
+
+        <div class="entrada-recuperar">
+            <h:inputText id="nombre" value="#{usuarioBacking.usuario.nombre}" styleClass="input-recuperar-usuario" pt:placeholder="Ingrese usuario..." />
+            <h:message for="nombre" />
+        </div>
+        <div id="errorUsuarioRecuperar" class="error-usuario-recuperar"></div>
+
+        <h:commandButton value="Recuperar" action="#{usuarioBacking.solicitarRecuperacionContrasenia}" styleClass="boton-recuperar-contrasenia"/>
+
+
+
+
+        <div class="panel-links">
+            <span class="mensaje-ir-login"> <h:commandLink value="Volver al login" action="#{usuarioBacking.redireccionarALogin}" styleClass="link" immediate="true" /></span>
+        </div>
+
+    </h:form>
+</section>
+
+<div id="mensaje-confirmacion-recuperar" class="mensaje-confirmacion-recuperar" style="display: none;">
+    <p>¡Te enviamos un email para que puedas cambiar tu contraseña!</p>
+    <div class="spinner-container-recuperar">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p class="procesando-recuperar">Enviando...</p>
+    </div>
+</div>
+
+<script type="text/javascript" src="#{request.contextPath}/js/recuperar.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  wildfly:
+    container_name: wildfly2
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - MYSQL_DATABASE=javicook_bd
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD= # Cambia esto si no quieres usar contraseña vacía
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - recipe_images:/opt/jboss/wildfly/uploads
+      - ./img:/opt/jboss/wildfly/img
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql2
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "" # Cambia esto si no quieres usar contraseña vacía
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: javicook_bd
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+volumes:
+  mysql_data:
+  recipe_images:

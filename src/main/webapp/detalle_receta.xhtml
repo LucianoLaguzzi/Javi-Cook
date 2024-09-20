@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <f:metadata>
+            <f:event listener="#{detalleRecetaBacking.init()}" type="preRenderView" />
+        </f:metadata>
+
+        <link rel="icon"  type="image/png" href="/JaviCook/img/favicon.png" />
+        <!-- Si tienes un icono en formato ICO, puedes incluirlo también -->
+        <link rel="icon" type="image/x-icon" href="/JaviCook/img/favicon.ico" />
+
+        <title>Javicook - #{detalleRecetaBacking.receta.titulo}</title>
+
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+        <!--    CDN para que funcionen los iconos de fontawesome-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;family=Montserrat:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    </h:head>
+
+    <body class="body-detalles">
+        <h:form enctype="multipart/form-data">
+            <div class="encabezado">
+                <!-- Menú de opciones -->
+                <h:panelGroup styleClass="barra-navegacion">
+                    <img src="img/JaviCook_logo.png" alt="Logotipo" class ="logo-principal"/>
+                    <c:if test="#{not empty usuarioBacking.usuario}">
+                        <h:outputText value="Bienvenido, #{usuarioBacking.usuario.nombre}!" styleClass="bienvenido-text" />
+                    </c:if>
+                    <span class="subtitulo-detalle-receta"> Detalles de la receta </span>
+                    <!-- Imagen para cerrar sesion -->
+
+                    <h:graphicImage value="img/cubiertos-cruzados.png" styleClass="img-cerrar-sesion" title="Cerrar Sesión" onclick="cerrarSesion();"/>
+                    <h:commandButton id="btnCerrarSesion2" styleClass="boton-cerrar-sesion2" style="display:none;" action="#{detalleRecetaBacking.cerrarSesion()}" />
+                </h:panelGroup>
+            </div>
+
+
+            <main class="principal">
+                <section class="tarjeta-grande">
+                    <h:panelGroup styleClass="panel-detalles">
+                        <div class="div-detalles-titulo">
+                            <h:outputText styleClass="detalles-titulo" value="#{detalleRecetaBacking.tituloAMayuscula(detalleRecetaBacking.receta.titulo)}" />
+                            <input id="inputOcultoTitulo" class="nuevo-titulo" name="nuevoTitulo" style="display: none"/>
+
+
+                            <h:panelGroup rendered="#{!detalleRecetaBacking.esPropietarioReceta()}">
+                                <a id="btnEditarTituloOculto" class="btn-editar-titulo" style="opacity: 0; cursor:default">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </h:panelGroup>
+
+                            <h:panelGroup rendered="#{detalleRecetaBacking.esPropietarioReceta()}">
+                                <a id="btnEditarTitulo" class="btn-editar-titulo" title="Editar Nombre" onclick="cambiarTitulo();">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+
+                                <div class="cancel-ok-titulo" style="display: none">
+                                    <a id="btnCancelarTitulo" class="btn-cancelar-titulo" title="Cancelar" style="display:none;" onclick="cancelarTitulo()">
+                                        <i class="fas fa-times-circle"></i>
+                                    </a>
+                                    <a id="btnGuardarTitulo" class="btn-guardar-titulo" title="Guardar" style="display:none;" onclick="guardarTitulo()">
+                                        <i class="fas fa-check-circle"></i>
+                                    </a>
+                                </div>
+
+                            </h:panelGroup>
+
+                            <h:commandButton id="btnTituloOculto" styleClass="editar-titulo-backing" style="display:none;" action="#{detalleRecetaBacking.editarTitulo()}">
+                                <f:ajax execute="@form" render="@form" />
+                            </h:commandButton>
+
+
+                        </div>
+
+
+                        <div class="imagen-contenedor">
+                            <img src="#{detalleRecetaBacking.receta.imagen}" class="panel-img" alt="#{detalleRecetaBacking.receta.titulo}" />
+                            <div class="detalles-usuario-fecha">
+                                <span class="detalles-nombre-usuario">#{detalleRecetaBacking.receta.usuario.nombre}</span>
+                                <span class="detalles-fecha-subida">#{detalleRecetaBacking.receta.fecha}</span>
+                            </div>
+                        </div>
+
+                        <p class="detalles-tiempo-dificultad">
+                            <span>Tiempo de preparación: #{detalleRecetaBacking.receta.tiempo_preparacion}'<i class="far fa-clock"/></span>
+                            <span class="detalles-dificultad-#{detalleRecetaBacking.receta.dificultad.toLowerCase()}">#{detalleRecetaBacking.receta.dificultad}</span>
+                        </p>
+
+                        <div class="detalles-categoria">
+                        <p>Categoría:</p>
+                        <h:outputText styleClass="texto-categoria" value="#{detalleRecetaBacking.receta.categoria}" escape="false" ></h:outputText>
+                        </div>
+
+
+                        <div class="detalles-cantidades">
+                            <p> Ingredientes</p>
+                            <h:outputText styleClass="valores-cantidad" value="#{detalleRecetaBacking.formatIngredientes(detalleRecetaBacking.obtenerCantidadesIngredientes(detalleRecetaBacking.receta.id).get(0))}" escape="false" />
+
+                            <!-- TextArea para editar ingredientes (inicialmente oculto) -->
+                            <textarea id="textareaIngredientes" class="text-area-ingredientes" style="display:none;"></textarea>
+
+                            <h:panelGroup rendered="#{detalleRecetaBacking.esPropietarioReceta()}">
+                                <a id="btnEditarIngredientes" class="btn-editar-ingredientes" title="Editar Ingredientes" >
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </h:panelGroup>
+
+                            <!-- Aca agrego todos los pasos, en un input oculto -->
+                            <input type="hidden" id="inputOcultoIngredientes" name="nuevosIngredientes" />
+
+                            <div class="cancel-ok-ingredientes">
+                                <a id="btnCancelarIngrediente" class="btn-cancelar-ingredientes" title="Cancelar" style="display:none;" >
+                                    <i class="fas fa-times-circle"></i>
+                                </a>
+                                <a id="btnGuardarIngrediente" class="btn-guardar-ingredientes" title="Guardar" style="display:none;" >
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                                <h:commandButton id="btnPersistirIngrediente" styleClass="btn-guardar-ingrediente" style="display:none;" action="#{detalleRecetaBacking.editarIngredientes()}">
+                                    <f:ajax execute="@form" render="@form" />
+                                </h:commandButton>
+                            </div>
+
+                        </div>
+
+
+                        <hr class="divider"/>
+
+                        <div class="detalles-pasos">
+                            <p>Pasos</p>
+                            <h:outputText styleClass="paso-texto" value="#{detalleRecetaBacking.formatPasos(detalleRecetaBacking.obtenerPasosReceta(detalleRecetaBacking.receta.id).get(0))}" escape="false" />
+
+                            <!-- Campos de los pasos -->
+                            <div class="div-pasos-receta" style="display: none">
+                                <div id="pasosPanel" class="pasos-panel">
+                                    <!-- Aquí se agregarán los pasos dinámicamente -->
+                                </div>
+                                <div id="modalErrorPasos" class="modal-error-paso"></div>
+
+                                <!-- Aca agrego todos los pasos, en un input oculto -->
+                                <input type="hidden" id="inputOcultoDetalles" name="pasosNuevos" />
+
+                                <div class="div-agregar-quitar-pasos">
+                                    <!-- Botón para agregar un nuevo paso -->
+                                    <a id="btnAgregarPaso" class="btn-agregar-paso" title="Agregar paso">
+                                        <i class="fas fa-plus"></i> Paso
+                                    </a>
+
+                                    <a id="btnQuitarPaso" class="btn-quitar-paso" title="Quitar paso">
+                                        <i class="fas fa-minus"></i> Paso
+                                    </a>
+                                </div>
+
+                            </div>
+
+                            <h:panelGroup rendered="#{detalleRecetaBacking.esPropietarioReceta()}">
+                                <a id="btnEditarPasos" class="btn-editar-pasos" title="Editar Pasos" onclick="mostrarInput()">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                            </h:panelGroup>
+
+                            <div class="cancel-ok-pasos">
+                                <a id="btnCancelarPaso" class="btn-cancelar-paso" title="Cancelar" style="display:none;" onclick="cancelarInput()">
+                                    <i class="fas fa-times-circle"></i>
+                                </a>
+                                <a id="btnGuardarIcon" class="btn-guardar-paso" title="Guardar" style="display:none;" onclick="guardarInput()">
+                                    <i class="fas fa-check-circle"></i>
+                                </a>
+                                <h:commandButton id="btnGuardarPasos" styleClass="btn-guardar-pasos" style="display:none;" action="#{detalleRecetaBacking.editarPasos()}">
+                                    <f:ajax execute="@form" render="@form" />
+                                </h:commandButton>
+                            </div>
+                        </div>
+
+                        <hr class="divider"/>
+
+                        <h:outputText styleClass="titulo-valoracion" value="Tu valoracion para esta receta" />
+
+                        <div class="detalles-valoracion" data-valoracion-usuario="#{detalleRecetaBacking.getValoracionUsuario()}"
+                             data-ya-valorado="#{not empty requestScope['yaValorado']}">
+                            <c:forEach var="i" begin="1" end="5">
+                                <h:commandLink action="#{detalleRecetaBacking.valorarReceta(i)}">
+                                    <i class="fa fa-star"
+                                       data-value="#{i}"></i>
+                                </h:commandLink>
+                            </c:forEach>
+                        </div>
+
+                        <div id="valoracion-mensaje" class="valoracion-mensaje" style="display:none; color: red; font-weight: bold;">
+                            ¡Ya has valorado esta receta!
+                        </div>
+
+                        <hr class="divider"/>
+
+
+                        <!-- Componente para capturar el resultado de la eliminación -->
+                        <h:outputText id="resultadoEliminar" styleClass="resultado-eliminar" value="#{detalleRecetaBacking.resultadoEliminar}" style="display:none;"/>
+
+                        <!-- Botón oculto para eliminar -->
+                        <h:commandButton styleClass="boton-eliminar-receta" id="btnEliminarReceta"
+                                         style="display:none;"
+                                         action="#{detalleRecetaBacking.eliminarReceta(detalleRecetaBacking.receta.id)}">
+                            <!-- Usamos f:ajax para manejar la respuesta y ejecutar JS -->
+                            <f:ajax execute="@this" render="resultadoEliminar" onevent="manejarResultadoEliminarReceta" />
+                        </h:commandButton>
+
+                        <!-- Botón visible con icono Font Awesome -->
+                        <h:outputLink styleClass="link-eliminar-receta" rendered="#{detalleRecetaBacking.esPropietarioReceta()}"
+                                      onclick="return confirmarEliminar(event)">
+                            <i class="fas fa-trash-alt" title="Eliminar receta"></i>
+                        </h:outputLink>
+
+
+                        <div class="detalles-comentarios">
+                            <i class="far fa-comment-alt"></i>
+                            <h:outputText value="Comentarios"></h:outputText>
+                        </div>
+
+                        <div class="input-comentarios">
+                            <h:inputText styleClass="input-comentario" pt:placeholder="Agregar comentario..." value="#{detalleRecetaBacking.nuevoComentario}" />
+                            <h:commandButton styleClass="boton-comentario" value="Enviar" action="#{detalleRecetaBacking.agregarComentario}" title="Enviar" onclick="mostrarMensajeConfirmacion()"/>
+                        </div>
+                        <div class="comentarios-usuarios">
+                            <ui:repeat var="comentario" value="#{detalleRecetaBacking.comentarios}">
+                                <div class="contenedores-spam">
+                                    <div class="imagen-nombre">
+                                        <img id="imagePreview" src="#{usuarioBacking.usuario.imagenPerfil}?unique=#{usuarioBacking.uniqueImageParam}" alt="Imagen de Perfil" class="imagen-perfil-comentario"/>
+                                        <span class="usuario-comentario">#{comentario.usuario.nombre}</span>
+                                    </div>
+                                    <span class="comentario-fecha">#{detalleRecetaBacking.obtenerFechaComentario(comentario)}</span>
+                                    <span class="texto-comentario">#{comentario.comentario}</span>
+                                </div>
+                            </ui:repeat>
+                        </div>
+
+
+                        <div id="mensaje-confirmacion" class="mensaje-confirmacion" style="display: none;">
+                            <p>¡El comentario se ha agregado correctamente!</p>
+                            <div class="spinner-container">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p class="procesando">Procesando...</p>
+                            </div>
+                        </div>
+
+                        <h:outputLink styleClass="link" value="#{request.contextPath}/index.xhtml">Ver otras recetas
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </h:outputLink>
+
+<!--Ver edicion de las recetas-->
+
+                    </h:panelGroup>
+
+                </section>
+            </main>
+
+
+        </h:form>
+        <script type="text/javascript" src="#{request.contextPath}/js/detalles.js"></script>
+    </body>
+</html>

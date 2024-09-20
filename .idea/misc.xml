@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectResources">
+    <resource url="urn:jboss:domain:18.0" location="$USER_HOME$/Documents/wildfly-25.0.1.Final/docs/schema/wildfly-config_18_0.xsd" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" default="true" project-jdk-name="15" project-jdk-type="JavaSDK" />
+</project>

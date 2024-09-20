@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Javi-Cook:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>Javi-Cook</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="JaviCook.war">
+      <element id="artifact" artifact-name="Javi-Cook:war exploded" />
+    </root>
+  </artifact>
+</component>

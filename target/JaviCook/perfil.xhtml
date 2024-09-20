@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Perfil del Usuario</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <f:metadata>
+        <f:event listener="#{usuarioBacking.init()}" type="preRenderView" />
+    </f:metadata>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;display=swap" rel="stylesheet"/>
+
+</h:head>
+
+<h:body class="perfil">
+    <h:form enctype="multipart/form-data">
+    <div class="encabezado">
+        <!-- Menú de opciones -->
+        <h:panelGroup styleClass="barra-navegacion">
+            <img src="img/JaviCook_logo.png" alt="Logotipo" class="logo-principal"/>
+            <c:if test="#{not empty usuarioBacking.usuario}">
+                <h:outputText value="Bienvenido, #{usuarioBacking.usuario.nombre}" styleClass="bienvenido-text" />
+            </c:if>
+            <span class="subtitulo"> Datos del usuario </span>
+            <!-- Imagen para cerrar sesion -->
+            <h:graphicImage value="img/cubiertos-cruzados.png" styleClass="img-cerrar-sesion" title="Cerrar Sesión" onclick="cerrarSesion();"/>
+            <h:commandButton id="btnCerrarSesion3" styleClass="boton-cerrar-sesion3" style="display:none;" action="#{usuarioBacking.cerrarSesion}" />
+        </h:panelGroup>
+    </div>
+    </h:form>
+    <section class="perfil-section">
+
+        <h:form styleClass="perfil-form"  id="perfil-form-receta" enctype="multipart/form-data" prependId="false">
+            <h1>Perfil del usuario</h1>
+
+            <!-- Sección de la imagen de perfil -->
+            <div class="perfil-imagen">
+                <div class="image-container">
+                    <img id="imagePreview" src="#{usuarioBacking.usuario.imagenPerfil}?unique=#{usuarioBacking.uniqueImageParam}" alt="Imagen de Perfil" class="imagen-perfil"/>
+                    <label for="imagen" class="edit-icon">
+                        <i class="fa fa-camera" title="Editar imagen"></i> <!-- Icono de cámara -->
+                    </label>
+                </div>
+                <input type="file" id="imagen" name="file" accept="image/*" onchange="previewImage(event)" class="input-imagen2"/>
+                <h:commandButton id="saveButton" value="&#10004; Guardar" action="#{usuarioBacking.cambiarImagen}" styleClass="boton-guardar-imagen" immediate="true"/>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="perfil-usuario">
+                <div class="perfil-inputs">
+                    <div class="div-label-perfil">
+                        <h:outputLabel styleClass="perfil-label-usuario" value="Usuario:" />
+                    </div>
+
+                    <h:outputText value="#{usuarioBacking.usuario.nombre}" styleClass="output-nombre-usuario" />
+                    <h:inputText value="#{usuarioBacking.nuevoNombre}" styleClass="input-nuevo-nombre" style="display:none;"/>
+                </div>
+
+                <a id="btnEditarUser" class="btn-editar-user" title="Editar Usuario" onclick="mostrarInput()">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+
+                <div class="cancel-ok">
+                    <a id="btnCancelarUser" class="btn-cancelar-user" title="Cancelar" style="display:none;" onclick="cancelarInput()">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                    <a id="btnGuardarIcon" class="btn-guardar-icon" title="Guardar" style="display:none;" onclick="guardarInput()">
+                        <i class="fas fa-check-circle"></i>
+                    </a>
+                    <h:commandButton id="btnGuardarUser" styleClass="btn-guardar-user" style="display:none;" action="#{usuarioBacking.editarNombreUsuario}"/>
+                </div>
+            </div>
+
+
+
+            <div class="perfil-email">
+                <div class="perfil-inputs">
+                    <div class="div-label-perfil">
+                        <h:outputLabel styleClass="perfil-label-email" value="Email:" />
+                    </div>
+
+                    <h:outputText value="#{usuarioBacking.usuario.email}" styleClass="output-email-usuario"/>
+                    <h:inputText value="#{usuarioBacking.nuevoEmail}" styleClass="input-nuevo-email" style="display:none;"/>
+                </div>
+
+                    <a id="btnEditarEmail" class="btn-editar-email" title="Editar Email"  onclick="mostrarInputEmail()">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+
+                <div class="cancel-ok">
+                    <a id="btnCancelarEmail" class="btn-cancelar-email" title="Cancelar" style="display:none;" onclick="cancelarInputEmail()">
+                        <i class="fas fa-times-circle"></i>
+                    </a>
+                    <a id="btnGuardarEmail" class="btn-guardar-icon-email" title="Guardar" style="display:none;" onclick="guardarInputEmail()">
+                        <i class="fas fa-check-circle"></i>
+                    </a>
+                    <h:commandButton id="btnGuardarOculto" styleClass="btn-guardar-email" style="display:none;" action="#{usuarioBacking.editarNombreEmail}"/>
+                </div>
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="div-recetas-usuario">
+                <h:commandLink value="Ver recetas del usuario" styleClass="link" onclick="mostrarRecetasUsuario(event); return false;"/>
+                <h:panelGroup id="recetasDelUsuario" class="recetas-del-usuario" style="display:none;">
+                    <c:if test="#{not empty usuarioBacking.recetasPorUsuario}">
+                            <c:forEach items="#{usuarioBacking.recetasPorUsuario}" var="receta">
+                                <div class="tarjeta-receta2">
+                                    <h:commandLink action="#{recetaBacking.verDetallesReceta(receta.id)}">
+                                        <h:outputText value="#{receta.titulo}" styleClass="receta-etiqueta"/>
+                                    </h:commandLink>
+                                </div>
+                            </c:forEach>
+                    </c:if>
+                    <c:if test="#{empty usuarioBacking.recetasPorUsuario}">
+                        <p>No tienes recetas subidas aún.</p>
+                    </c:if>
+                </h:panelGroup>
+            </div>
+
+            <div class="perfil-link-index">
+                <span class="mensaje-ir-index">
+                    <h:commandLink value="Volver a las recetas" action="#{usuarioBacking.redireccionarAlIndex()}" styleClass="link" immediate="true" />
+                </span>
+            </div>
+        </h:form>
+    </section>
+
+    <script type="text/javascript" src="#{request.contextPath}/js/perfil.js"></script>
+</h:body>
+</html>

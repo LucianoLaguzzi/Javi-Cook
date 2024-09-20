@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Cambiar Contraseña</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+
+    <f:metadata>
+        <f:event listener="#{usuarioBacking.init()}" type="preRenderView" />
+    </f:metadata>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,500;1,400&amp;family=Poppins:ital,wght@0,300;0,400;1,300&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+</h:head>
+
+<body class="recuperar-contrasenia">
+
+<header class="titulo-registrar">
+    <h1>Cambiar contraseña</h1>
+</header>
+
+<section class="cambiar-section">
+    <h:form styleClass="recuperar-form" ajax="true" pt:ajax="true" prependId="false">
+
+        <h2 class="titulo-recuperar-pass"> Ingresa tu nueva contraseña </h2>
+        <p class="p-recuperar-pass">Ingrese su nueva contraseña y confirmela para poder lograr cambiar la contraseña y acceder a su cuenta nuevamente.</p>
+
+
+        <div class="entrada-recuperar">
+            <h:inputSecret id="contrasenia" value="#{usuarioBacking.nuevaContrasenia}" pt:placeholder="Nueva Contraseña" styleClass="input-cambiar-pass"/>
+            <h:message for="contrasenia" />
+        </div>
+        <div class="entrada-recuperar">
+            <h:inputSecret id="confirmarContrasenia" value="#{usuarioBacking.confirmarContrasenia}" pt:placeholder="Confirmar Contraseña" styleClass="input-confirmar-pass" />
+            <h:message for="confirmarContrasenia" />
+        </div>
+
+        <div id="errorMensajeCambiarPass" class="error-mensaje-cambiar-pass"></div>
+
+        <h:commandButton value="Cambiar contraseña" action="#{usuarioBacking.cambiarContrasenia}" styleClass="boton-cambiar-contrasenia" />
+
+
+
+
+        <div class="panel-links">
+            <span class="mensaje-ir-login"> <h:commandLink value="Ir al login" action="#{usuarioBacking.redireccionarALogin}" styleClass="link" immediate="true" /></span>
+        </div>
+
+    </h:form>
+</section>
+
+<div id="mensaje-confirmacion-cambiar" class="mensaje-confirmacion-cambiar" style="display: none;">
+    <p>¡Tu contraseña ha sido cambiada con éxito!</p>
+    <div class="circle-check-container-cambiar">
+        <i class="fas fa-check"></i>
+        <p class="procesando-cambiar">Cargando...</p>
+    </div>
+</div>
+
+<script type="text/javascript" src="#{request.contextPath}/js/cambiar.js"></script>
+</body>
+</html>
