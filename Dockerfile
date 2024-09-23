@@ -1,16 +1,17 @@
-FROM quay.io/wildfly/wildfly:25.0.1.Final-ubi8
+# Etapa de construcción
+FROM maven:3.8.6-openjdk-17 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
+# Etapa final
+FROM jboss/wildfly:latest
+COPY --from=build /app/target/JaviCook.war /opt/jboss/wildfly/standalone/deployments/
+COPY --from=build /app/mysql-connector-java-5.1.48.jar /opt/jboss/wildfly/modules/com/mysql/main/
+COPY --from=build /app/module.xml /opt/jboss/wildfly/modules/com/mysql/main/
+COPY --from=build /app/standalone.xml /opt/jboss/wildfly/standalone/configuration/
 
-# Crear directorios, cambiar permisos y copiar archivos en un solo paso
-RUN mkdir -p /opt/jboss/wildfly/{uploads,img} /opt/jboss/wildfly/modules/com/mysql/main/ && \
-    chown -R jboss:jboss /opt/jboss/wildfly/uploads /opt/jboss/wildfly/img
-
-# Copiar el archivo WAR y otros archivos en un solo paso
-COPY target/JaviCook.war /opt/jboss/wildfly/standalone/deployments/ \
-     mysql-connector-java-5.1.48.jar module.xml /opt/jboss/wildfly/modules/com/mysql/main/ \
-     standalone.xml /opt/jboss/wildfly/standalone/configuration/
-
-# Exponer el puerto 8080 para acceder a la app
+# Exponer el puerto 8080
 EXPOSE 8080
 
 # Comando para iniciar WildFly
