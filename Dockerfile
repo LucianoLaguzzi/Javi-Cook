@@ -1,32 +1,13 @@
-FROM quay.io/wildfly/wildfly:25.0.1.Final
+FROM quay.io/wildfly/wildfly:25.0.1.Final-alpine
 
-# Establecer variables de entorno
-ENV DEPLOYMENT_DIR=/opt/jboss/wildfly/standalone/deployments/
-ENV CONFIGURATION_DIR=/opt/jboss/wildfly/standalone/configuration/
-ENV MODULES_DIR=/opt/jboss/wildfly/modules/com/mysql/main/
+# Crear directorios, cambiar permisos y copiar archivos en un solo paso
+RUN mkdir -p /opt/jboss/wildfly/{uploads,img} /opt/jboss/wildfly/modules/com/mysql/main/ && \
+    chown -R jboss:jboss /opt/jboss/wildfly/uploads /opt/jboss/wildfly/img
 
-# Crear la estructura de directorios necesaria
-RUN mkdir -p $MODULES_DIR /opt/jboss/wildfly/uploads
-
-# Cambiar permisos del directorio uploads
-RUN chown -R jboss:jboss /opt/jboss/wildfly/uploads
-
-#Cambios agregados para crear el directorio si no existe
-RUN mkdir -p /opt/jboss/wildfly/img
-RUN chown -R jboss:jboss /opt/jboss/wildfly/img
-
-
-# Copiar el archivo WAR al directorio de despliegue de WildFly
-COPY target/JaviCook.war $DEPLOYMENT_DIR
-
-# Copiar el archivo JAR del controlador JDBC
-COPY mysql-connector-java-5.1.48.jar $MODULES_DIR/
-
-# Copiar el archivo module.xml
-COPY module.xml $MODULES_DIR/
-
-# Copiar el archivo standalone.xml personalizado
-COPY standalone.xml $CONFIGURATION_DIR/
+# Copiar el archivo WAR y otros archivos en un solo paso
+COPY target/JaviCook.war /opt/jboss/wildfly/standalone/deployments/ \
+     mysql-connector-java-5.1.48.jar module.xml /opt/jboss/wildfly/modules/com/mysql/main/ \
+     standalone.xml /opt/jboss/wildfly/standalone/configuration/
 
 # Exponer el puerto 8080 para acceder a la app
 EXPOSE 8080
