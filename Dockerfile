@@ -1,4 +1,5 @@
-FROM quay.io/wildfly/wildfly:25.0.1.Final-alpine
+FROM quay.io/wildfly/wildfly:25.0.1.Final-ubi8
+
 
 # Crear directorios, cambiar permisos y copiar archivos en un solo paso
 RUN mkdir -p /opt/jboss/wildfly/{uploads,img} /opt/jboss/wildfly/modules/com/mysql/main/ && \
